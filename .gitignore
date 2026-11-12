@@ -1,0 +1,24 @@
+# Secrets and local config
+.env
+*.env
+!.env.example
+
+# Databases (may contain private chapter data)
+db.sqlite3
+*.sqlite3
+*.dump
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Django
+staticfiles/
+media/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

@@ -4,6 +4,9 @@ A web-based platform for managing the activities, projects, programmes, resource
 
 > **Guiding principle:** Every initiative must produce a measurable outcome for SPE Kyambogo. The system makes it easy to see what has been done, who is responsible, what resources were used and what remains outstanding.
 
+**Chapter:** SPE Kyambogo University Student Chapter, Chapter No. 6276
+**Established:** 15 October 2017
+**Sponsoring section:** SPE Uganda Section
 **Status:** Early development (pre-v0.1). Not yet in production.
 **Maintainer:** Chairperson, Projects, Innovation and Resources Development.
 

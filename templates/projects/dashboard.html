@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Executive Dashboard</h1>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="card text-center"><div class="card-body">
+    <div class="display-6">{{ active_count }}</div><div class="text-muted">Active projects</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="card text-center"><div class="card-body">
+    <div class="display-6 text-danger">{{ overdue_projects|length }}</div><div class="text-muted">Overdue projects</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="card text-center"><div class="card-body">
+    <div class="display-6 text-danger">{{ overdue_tasks|length }}</div><div class="text-muted">Overdue tasks</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="card text-center"><div class="card-body">
+    <div class="display-6">{{ my_tasks|length }}</div><div class="text-muted">My open tasks</div></div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Projects by status</div>
+      <ul class="list-group list-group-flush">
+        {% for label, n in status_counts %}
+          <li class="list-group-item d-flex justify-content-between">{{ label }}<span class="badge text-bg-secondary">{{ n }}</span></li>
+        {% empty %}<li class="list-group-item text-muted">No projects yet.</li>{% endfor %}
+      </ul></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Overdue projects</div>
+      <ul class="list-group list-group-flush">
+        {% for p in overdue_projects %}
+          <li class="list-group-item"><a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+            <div class="small text-muted">{{ p.department }} · due {{ p.due_date }} · {{ p.owner|default:"no owner" }}</div></li>
+        {% empty %}<li class="list-group-item text-muted">Nothing overdue.</li>{% endfor %}
+      </ul></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Overdue tasks</div>
+      <ul class="list-group list-group-flush">
+        {% for t in overdue_tasks %}
+          <li class="list-group-item">{{ t.title }}
+            <div class="small text-muted">{{ t.project }} · due {{ t.due_date }} · {{ t.assignee|default:"unassigned" }}</div></li>
+        {% empty %}<li class="list-group-item text-muted">Nothing overdue.</li>{% endfor %}
+      </ul></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">My open tasks</div>
+      <ul class="list-group list-group-flush">
+        {% for t in my_tasks %}
+          <li class="list-group-item">{{ t.title }}
+            <div class="small text-muted">{{ t.project }}{% if t.due_date %} · due {{ t.due_date }}{% endif %}</div></li>
+        {% empty %}<li class="list-group-item text-muted">No open tasks assigned to you.</li>{% endfor %}
+      </ul></div>
+  </div>
+</div>
+{% endblock %}

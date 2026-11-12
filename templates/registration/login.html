@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card shadow-sm"><div class="card-body">
+      <h1 class="h4 mb-3">SPE Kyambogo Executive Login</h1>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_div }}
+        <button class="btn btn-primary mt-3" type="submit">Log in</button>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
