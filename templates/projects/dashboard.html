@@ -50,5 +50,23 @@
         {% empty %}<li class="list-group-item text-muted">No open tasks assigned to you.</li>{% endfor %}
       </ul></div>
   </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Upcoming programmes</div>
+      <ul class="list-group list-group-flush">
+        {% for p in upcoming_programmes %}
+          <li class="list-group-item"><a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+            <div class="small text-muted">{{ p.date }}{% if p.venue %} · {{ p.venue }}{% endif %} · {{ p.department }}</div></li>
+        {% empty %}<li class="list-group-item text-muted">No upcoming programmes.</li>{% endfor %}
+      </ul></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Outstanding programme follow-ups</div>
+      <ul class="list-group list-group-flush">
+        {% for f in open_followups %}
+          <li class="list-group-item">{{ f.action }}
+            <div class="small text-muted"><a href="{{ f.programme.get_absolute_url }}">{{ f.programme }}</a> · {{ f.assignee|default:"unassigned" }}{% if f.due_date %} · due {{ f.due_date }}{% endif %}{% if f.is_overdue %} <span class="badge text-bg-danger">Overdue</span>{% endif %}</div></li>
+        {% empty %}<li class="list-group-item text-muted">No outstanding follow-ups.</li>{% endfor %}
+      </ul></div>
+  </div>
 </div>
 {% endblock %}

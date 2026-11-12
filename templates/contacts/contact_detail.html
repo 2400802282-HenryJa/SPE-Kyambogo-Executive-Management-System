@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ contact.full_name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ contact.full_name }}</h1>
+    <span class="badge text-bg-secondary">{{ contact.get_category_display }}</span>
+    <span class="text-muted">{{ contact.job_title }}{% if contact.organisation %} · {{ contact.organisation }}{% endif %}</span>
+  </div>
+  {% if can_edit %}<a class="btn btn-outline-primary" href="{% url 'contact_update' contact.pk %}">Edit</a>{% endif %}
+</div>
+<div class="row g-3">
+  <div class="col-md-8">
+    <div class="card"><div class="card-header d-flex justify-content-between align-items-center">Engagement log
+      <a class="btn btn-sm btn-outline-primary" href="{% url 'interaction_create' contact.pk %}">Log engagement</a></div>
+      <ul class="list-group list-group-flush">
+        {% for i in contact.interactions.all %}
+          <li class="list-group-item">
+            <div class="small text-muted">{{ i.date }} · {{ i.recorded_by|default:"unknown" }}</div>
+            <div>{{ i.summary|linebreaksbr }}</div>
+            {% if i.follow_up %}<div class="small"><strong>Follow-up:</strong> {{ i.follow_up|linebreaksbr }}</div>{% endif %}
+          </li>
+        {% empty %}<li class="list-group-item text-muted">No engagements logged yet.</li>{% endfor %}
+      </ul></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card"><div class="card-body"><dl class="mb-0">
+      <dt>Email</dt><dd>{{ contact.email|default:"-" }}</dd>
+      <dt>Phone</dt><dd>{{ contact.phone|default:"-" }}</dd>
+      <dt>Expertise</dt><dd>{{ contact.expertise|default:"-" }}</dd>
+      <dt>Notes</dt><dd>{{ contact.notes|default:"-"|linebreaksbr }}</dd>
+      <dt>Added by</dt><dd class="mb-0">{{ contact.added_by|default:"-" }}</dd>
+    </dl></div></div>
+  </div>
+</div>
+{% endblock %}

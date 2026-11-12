@@ -8,6 +8,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, UpdateView
 
 from departments.models import Department
+from programmes.models import FollowUp, Programme
 
 from .forms import MilestoneForm, ProjectForm, TaskForm
 from .models import Milestone, Project, Task
@@ -33,6 +34,18 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         )
         ctx["overdue_tasks"] = open_tasks.filter(due_date__lt=today).select_related(
             "project", "assignee"
+        )
+        ctx["upcoming_programmes"] = (
+            Programme.objects.exclude(
+                status__in=[Programme.Status.COMPLETED, Programme.Status.CANCELLED]
+            )
+            .filter(date__gte=today)
+            .order_by("date")[:5]
+        )
+        ctx["open_followups"] = (
+            FollowUp.objects.filter(done=False)
+            .select_related("programme", "assignee")
+            .order_by("due_date")[:8]
         )
         ctx["my_tasks"] = open_tasks.filter(assignee=self.request.user).select_related(
             "project"

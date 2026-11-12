@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ programme.title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ programme.title }}</h1>
+    <span class="badge text-bg-{{ programme.status_badge }}">{{ programme.get_status_display }}</span>
+    <span class="badge text-bg-light border">{{ programme.get_kind_display }}</span>
+  </div>
+  {% if can_edit %}<a class="btn btn-outline-primary" href="{% url 'programme_update' programme.pk %}">Edit</a>{% endif %}
+</div>
+
+<div class="row g-3">
+  <div class="col-md-8">
+    <div class="card mb-3"><div class="card-body">
+      <h2 class="h6">Description</h2><p>{{ programme.description|default:"-"|linebreaksbr }}</p>
+      <h2 class="h6">Expected measurable outcome</h2><p>{{ programme.expected_outcome|default:"-"|linebreaksbr }}</p>
+      <h2 class="h6">Outcome summary</h2><p class="mb-0">{{ programme.outcome_summary|default:"Not yet recorded."|linebreaksbr }}</p>
+    </div></div>
+
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">Invited speakers
+        {% if can_edit %}<a class="btn btn-sm btn-outline-primary" href="{% url 'speaker_create' programme.pk %}">Add speaker</a>{% endif %}</div>
+      <ul class="list-group list-group-flush">
+        {% for s in programme.speakers.all %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span><a href="{{ s.contact.get_absolute_url }}">{{ s.contact }}</a>{% if s.topic %} · {{ s.topic }}{% endif %}</span>
+            <span class="badge text-bg-{% if s.confirmed %}success{% else %}warning{% endif %}">{% if s.confirmed %}Confirmed{% else %}Pending{% endif %}</span></li>
+        {% empty %}<li class="list-group-item text-muted">No speakers yet.</li>{% endfor %}
+      </ul></div>
+
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">Volunteers
+        {% if can_edit %}<a class="btn btn-sm btn-outline-primary" href="{% url 'volunteer_create' programme.pk %}">Add volunteer</a>{% endif %}</div>
+      <ul class="list-group list-group-flush">
+        {% for v in programme.volunteers.all %}
+          <li class="list-group-item">{{ v.user }}{% if v.role %} · <span class="text-muted">{{ v.role }}</span>{% endif %}</li>
+        {% empty %}<li class="list-group-item text-muted">No volunteers yet.</li>{% endfor %}
+      </ul></div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">Follow-up actions
+        {% if can_edit %}<a class="btn btn-sm btn-outline-primary" href="{% url 'followup_create' programme.pk %}">Add action</a>{% endif %}</div>
+      <ul class="list-group list-group-flush">
+        {% for f in programme.follow_ups.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{% if f.done %}&#10003; <s>{{ f.action }}</s>{% else %}{{ f.action }}{% endif %}
+              {% if f.is_overdue %}<span class="badge text-bg-danger">Overdue</span>{% endif %}
+              <span class="text-muted small">{{ f.assignee|default:"unassigned" }}{% if f.due_date %} · {{ f.due_date }}{% endif %}</span></span>
+            {% if can_edit or f.assignee_id == user.pk %}
+            <form method="post" action="{% url 'followup_toggle' f.pk %}" class="m-0">{% csrf_token %}
+              <button class="btn btn-sm btn-outline-secondary" type="submit">{% if f.done %}Reopen{% else %}Mark done{% endif %}</button></form>
+            {% endif %}</li>
+        {% empty %}<li class="list-group-item text-muted">No follow-up actions yet.</li>{% endfor %}
+      </ul></div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card"><div class="card-body"><dl class="mb-0">
+      <dt>Department</dt><dd>{{ programme.department }}</dd>
+      <dt>Coordinator</dt><dd>{{ programme.coordinator|default:"-" }}</dd>
+      <dt>Date</dt><dd>{{ programme.date }}{% if programme.end_date %} to {{ programme.end_date }}{% endif %}</dd>
+      <dt>Venue</dt><dd>{{ programme.venue|default:"-" }}</dd>
+      <dt>Expected attendance</dt><dd>{{ programme.expected_attendance|default_if_none:"-" }}</dd>
+      <dt>Actual attendance</dt><dd class="mb-0">{{ programme.actual_attendance|default_if_none:"-" }}</dd>
+    </dl></div></div>
+  </div>
+</div>
+{% endblock %}

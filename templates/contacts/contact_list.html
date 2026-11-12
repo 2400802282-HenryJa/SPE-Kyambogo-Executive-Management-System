@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Contacts{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Contacts</h1>
+  <div>
+    <a class="btn btn-outline-secondary" href="{% url 'organisation_create' %}">New organisation</a>
+    <a class="btn btn-primary" href="{% url 'contact_create' %}">New contact</a>
+  </div>
+</div>
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-5"><input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search name, organisation, expertise"></div>
+  <div class="col-md-4">
+    <select name="category" class="form-select">
+      <option value="">All categories</option>
+      {% for value, label in categories %}<option value="{{ value }}" {% if value == selected_category %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3"><button class="btn btn-outline-secondary" type="submit">Search</button></div>
+</form>
+<div class="table-responsive"><table class="table table-hover bg-white">
+  <thead><tr><th>Name</th><th>Organisation</th><th>Category</th><th>Expertise</th><th>Contact</th></tr></thead>
+  <tbody>
+  {% for c in contacts %}
+    <tr>
+      <td><a href="{{ c.get_absolute_url }}">{{ c.full_name }}</a><div class="small text-muted">{{ c.job_title }}</div></td>
+      <td>{{ c.organisation|default:"-" }}</td>
+      <td>{{ c.get_category_display }}</td>
+      <td>{{ c.expertise|default:"-" }}</td>
+      <td class="small">{{ c.email }}{% if c.email and c.phone %}<br>{% endif %}{{ c.phone }}</td>
+    </tr>
+  {% empty %}<tr><td colspan="5" class="text-muted">No contacts found.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}
