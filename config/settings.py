@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "contacts",
     "programmes",
     "resources",
+    "reports",
 ]
 
 MIDDLEWARE = [
@@ -109,3 +110,4 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "login"
 CSRF_FAILURE_VIEW = "config.views.csrf_failure"
+MEDIA_ROOT = BASE_DIR / "media"

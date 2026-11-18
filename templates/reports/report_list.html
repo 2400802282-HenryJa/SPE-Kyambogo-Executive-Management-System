@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Monthly reports{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Monthly reports</h1>
+  <a class="btn btn-primary" href="{% url 'report_create' %}">Upload report</a>
+</div>
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-5"><select name="department" class="form-select">
+    <option value="">All departments</option>
+    {% for d in departments %}<option value="{{ d.pk }}" {% if d.pk|stringformat:"s" == selected_department %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+  </select></div>
+  <div class="col-md-3"><input type="number" name="year" value="{{ year }}" class="form-control" placeholder="Year"></div>
+  <div class="col-md-4"><button class="btn btn-outline-secondary" type="submit">Filter</button></div>
+</form>
+<div class="table-responsive"><table class="table table-hover bg-white">
+  <thead><tr><th>Period</th><th>Department</th><th>File</th><th>Summary</th><th>Uploaded</th><th>Review</th></tr></thead>
+  <tbody>
+  {% for r in reports %}
+    <tr>
+      <td>{{ r.period_label }}</td>
+      <td>{{ r.department }}</td>
+      <td><a href="{% url 'report_download' r.pk %}">{{ r.filename }}</a></td>
+      <td class="small">{{ r.summary|default:"-" }}</td>
+      <td class="small text-muted">{{ r.uploaded_by|default:"-" }}<br>{{ r.uploaded_at|date:"j M Y" }}</td>
+      <td>
+        {% if r.reviewed %}<span class="badge text-bg-success">Reviewed</span>
+          <div class="small text-muted">{{ r.reviewed_by|default:"" }}</div>
+        {% else %}<span class="badge text-bg-secondary">Awaiting review</span>{% endif %}
+        {% if is_reviewer %}
+        <form method="post" action="{% url 'report_review' r.pk %}" class="mt-1">{% csrf_token %}
+          <button class="btn btn-sm btn-outline-secondary" type="submit">{% if r.reviewed %}Undo{% else %}Mark reviewed{% endif %}</button></form>
+        {% endif %}
+      </td>
+    </tr>
+  {% empty %}<tr><td colspan="6" class="text-muted">No reports uploaded yet.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

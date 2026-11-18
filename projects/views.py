@@ -9,6 +9,7 @@ from django.views.generic import CreateView, DetailView, ListView, TemplateView,
 
 from departments.models import Department
 from programmes.models import FollowUp, Programme
+from reports.models import MonthlyReport
 from resources.models import Item
 
 from .forms import MilestoneForm, ProjectForm, TaskForm
@@ -57,6 +58,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .filter(is_active=True, reorder_level__gt=0, on_hand__lte=F("reorder_level"))
             .order_by("name")[:8]
         )
+        if user.is_superuser or user.is_top_executive:
+            submitted = MonthlyReport.objects.filter(
+                year=today.year, month=today.month
+            ).values("department_id")
+            ctx["missing_reports"] = Department.objects.exclude(pk__in=submitted)
+            ctx["report_month"] = today.strftime("%B %Y")
         ctx["my_tasks"] = open_tasks.filter(assignee=user).select_related("project")
         return ctx
 

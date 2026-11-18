@@ -20,4 +20,5 @@ urlpatterns = [
     path("", include("contacts.urls")),
     path("", include("programmes.urls")),
     path("", include("resources.urls")),
+    path("", include("reports.urls")),
 ]

@@ -1,4 +1,4 @@
-# Permissions (v0.4)
+# Permissions (v0.5)
 
 ## Roles
 | Role | How it is set | Access |
@@ -20,3 +20,4 @@
 - **Treasury/finance:** confidential. Use `TreasuryAccessMixin` (accounts/mixins.py) on every finance view: only Treasurer, President, VP, CAO and the developer.
 - **Department members** are managed on the Departments page by the head (or a top executive).
 - After changing roles in bulk, run `python manage.py sync_roles`.
+- **Monthly reports:** written offline and attached as a file (PDF/Word/Excel/PowerPoint, max 10 MB). A department head uploads for their own department; President, VP, CAO and developer see all and mark reports as reviewed. Files are served only through a permission check, never as public links.

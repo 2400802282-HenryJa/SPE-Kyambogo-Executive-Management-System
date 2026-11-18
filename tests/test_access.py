@@ -110,4 +110,4 @@ class ScopedAccessTests(TestCase):
 
     def test_login_failure_shows_friendly_message(self):
         r = self.client.post(reverse("login"), {"username": "nobody", "password": "wrong"})
-        self.assertContains(r, "couldn&#x27;t sign you in")
+        self.assertContains(r, "couldn't sign you in")

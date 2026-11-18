@@ -77,5 +77,14 @@
         {% empty %}<li class="list-group-item text-muted">No items below their reorder level.</li>{% endfor %}
       </ul></div>
   </div>
+  {% if report_month %}
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Reports not yet received: {{ report_month }}</div>
+      <ul class="list-group list-group-flush">
+        {% for d in missing_reports %}<li class="list-group-item">{{ d.name }} <span class="text-muted small">{{ d.head|default:"no head assigned" }}</span></li>
+        {% empty %}<li class="list-group-item text-muted">All departments have submitted.</li>{% endfor %}
+      </ul></div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

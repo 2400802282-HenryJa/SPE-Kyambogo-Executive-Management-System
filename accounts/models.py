@@ -42,6 +42,13 @@ class User(AbstractUser):
         return bool(self.is_superuser or self.is_top_executive)
 
     @property
+    def can_view_reports(self):
+        """Monthly reports: top executives, developer and department heads."""
+        return bool(
+            self.is_superuser or self.is_top_executive or self.headed_departments.exists()
+        )
+
+    @property
     def can_view_mobilisation(self):
         """Resource-mobilisation money records: treasury-authorised users and department heads."""
         return bool(self.is_treasury_authorised or self.headed_departments.exists())

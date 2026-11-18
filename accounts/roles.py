@@ -4,7 +4,7 @@ TOP_EXEC_GROUP = "Top Executives"
 
 # Add an app label here when a new module is built so the top executives
 # automatically get permissions for it in the admin site.
-APP_LABELS = ["accounts", "departments", "projects", "programmes", "contacts", "resources"]
+APP_LABELS = ["accounts", "departments", "projects", "programmes", "contacts", "resources", "reports"]
 
 
 def ensure_top_exec_group():
