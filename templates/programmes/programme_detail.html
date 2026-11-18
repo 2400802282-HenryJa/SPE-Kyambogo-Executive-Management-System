@@ -24,7 +24,7 @@
       <ul class="list-group list-group-flush">
         {% for s in programme.speakers.all %}
           <li class="list-group-item d-flex justify-content-between">
-            <span><a href="{{ s.contact.get_absolute_url }}">{{ s.contact }}</a>{% if s.topic %} · {{ s.topic }}{% endif %}</span>
+            <span>{% if s.contact and user.can_access_contacts %}<a href="{{ s.contact.get_absolute_url }}">{{ s.display_name }}</a>{% else %}{{ s.display_name }}{% endif %}{% if s.organisation %} ({{ s.organisation }}){% endif %}{% if s.topic %} · {{ s.topic }}{% endif %}</span>
             <span class="badge text-bg-{% if s.confirmed %}success{% else %}warning{% endif %}">{% if s.confirmed %}Confirmed{% else %}Pending{% endif %}</span></li>
         {% empty %}<li class="list-group-item text-muted">No speakers yet.</li>{% endfor %}
       </ul></div>

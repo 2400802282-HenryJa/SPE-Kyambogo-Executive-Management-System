@@ -54,29 +54,43 @@ class ProgrammeTests(TestCase):
 
 class ContactTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user("u1", password="pass12345")
-        self.other = User.objects.create_user("u2", password="pass12345")
+        self.president = User.objects.create_user("pres", password="pass12345", position="president")
+        self.plain = User.objects.create_user("plain", password="pass12345")
+        self.head = User.objects.create_user("head", password="pass12345", position="department_head")
 
     def test_create_and_search_contact(self):
-        self.client.login(username="u1", password="pass12345")
+        self.client.login(username="pres", password="pass12345")
         r = self.client.post(reverse("contact_create"), {
             "full_name": "Dr Test Expert", "category": "industry_expert", "expertise": "Reservoir modelling",
         })
         self.assertEqual(r.status_code, 302)
         contact = Contact.objects.get(full_name="Dr Test Expert")
-        self.assertEqual(contact.added_by, self.user)
+        self.assertEqual(contact.added_by, self.president)
         r = self.client.get(reverse("contact_list"), {"q": "reservoir"})
         self.assertContains(r, "Dr Test Expert")
 
-    def test_only_allowed_users_edit_contact(self):
-        contact = Contact.objects.create(full_name="X", added_by=self.user)
-        self.client.login(username="u2", password="pass12345")
-        self.assertEqual(self.client.get(reverse("contact_update", args=[contact.pk])).status_code, 403)
+    def test_only_top_three_can_use_contacts(self):
+        contact = Contact.objects.create(full_name="X")
+        for name in ("plain", "head"):
+            self.client.login(username=name, password="pass12345")
+            self.assertEqual(self.client.get(reverse("contact_list")).status_code, 403)
+            self.assertEqual(self.client.get(reverse("contact_detail", args=[contact.pk])).status_code, 403)
+            self.assertEqual(self.client.get(reverse("contact_create")).status_code, 403)
 
-    def test_any_user_can_log_engagement(self):
-        contact = Contact.objects.create(full_name="X", added_by=self.user)
-        self.client.login(username="u2", password="pass12345")
+    def test_top_executive_can_log_engagement(self):
+        contact = Contact.objects.create(full_name="X")
+        self.client.login(username="pres", password="pass12345")
         self.client.post(reverse("interaction_create", args=[contact.pk]), {
             "date": "2026-11-10", "summary": "Met at event",
         })
-        self.assertEqual(Interaction.objects.filter(contact=contact, recorded_by=self.other).count(), 1)
+        self.assertEqual(Interaction.objects.filter(contact=contact, recorded_by=self.president).count(), 1)
+
+    def test_coordinator_can_add_speaker_by_name_without_contacts_access(self):
+        dept = Department.objects.create(name="D")
+        prog = Programme.objects.create(title="Talk", department=dept, coordinator=self.plain, date=date(2030, 1, 1))
+        self.client.login(username="plain", password="pass12345")
+        url = reverse("speaker_create", args=[prog.pk])
+        r = self.client.get(url)
+        self.assertNotContains(r, 'name="contact"')
+        self.client.post(url, {"name": "Eng. Guest", "organisation": "Oil Co", "topic": "Careers"})
+        self.assertEqual(prog.speakers.first().display_name, "Eng. Guest")

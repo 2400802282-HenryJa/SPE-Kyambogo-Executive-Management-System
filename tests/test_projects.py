@@ -42,7 +42,7 @@ class ProjectTests(TestCase):
     def test_other_user_cannot_edit(self):
         self.client.login(username="other", password="pass12345")
         response = self.client.get(reverse("project_update", args=[self.project.pk]))
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)  # not visible to outsiders
 
     def test_logged_in_user_sees_dashboard(self):
         self.client.login(username="other", password="pass12345")

@@ -80,6 +80,7 @@ class Programme(models.Model):
             return False
         return bool(
             user.is_superuser
+            or user.is_top_executive
             or self.coordinator_id == user.pk
             or (self.department_id and self.department.head_id == user.pk)
         )
@@ -90,16 +91,28 @@ class ProgrammeSpeaker(models.Model):
         Programme, on_delete=models.CASCADE, related_name="speakers"
     )
     contact = models.ForeignKey(
-        "contacts.Contact", on_delete=models.PROTECT, related_name="speaking_engagements"
+        "contacts.Contact",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="speaking_engagements",
     )
+    name = models.CharField(
+        max_length=200, blank=True, help_text="Speaker's name if not picked from Contacts."
+    )
+    organisation = models.CharField(max_length=200, blank=True)
     topic = models.CharField(max_length=200, blank=True)
     confirmed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["id"]
 
+    @property
+    def display_name(self):
+        return self.contact.full_name if self.contact_id else self.name
+
     def __str__(self):
-        return f"{self.contact} at {self.programme}"
+        return f"{self.display_name} at {self.programme}"
 
 
 class ProgrammeVolunteer(models.Model):

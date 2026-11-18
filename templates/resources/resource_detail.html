@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ item.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ item.name }}</h1>
+    <span class="badge text-bg-light border">{{ item.get_category_display }}</span>
+    {% if not item.is_active %}<span class="badge text-bg-secondary">Inactive</span>{% endif %}
+    {% if item.reorder_level and on_hand <= item.reorder_level %}<span class="badge text-bg-warning">Low stock</span>{% endif %}
+  </div>
+  {% if can_manage %}
+  <div>
+    <a class="btn btn-primary" href="{% url 'movement_create' item.pk %}">Record stock / sale</a>
+    <a class="btn btn-outline-primary" href="{% url 'resource_update' item.pk %}">Edit</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="row g-3">
+  <div class="col-md-8">
+    <div class="card"><div class="card-header">Stock history</div>
+      <div class="table-responsive"><table class="table mb-0">
+        <thead><tr><th>Date</th><th>Type</th><th class="text-end">Qty</th>{% if finance_ok %}<th class="text-end">Unit price</th><th class="text-end">Total</th>{% endif %}<th>Note</th><th>By</th></tr></thead>
+        <tbody>
+        {% for m in movements %}
+          <tr>
+            <td>{{ m.date }}</td><td>{{ m.get_kind_display }}</td>
+            <td class="text-end">{% if m.is_outgoing %}-{% else %}+{% endif %}{{ m.quantity }}</td>
+            {% if finance_ok %}<td class="text-end">{{ m.unit_price|default_if_none:"-"|floatformat:"0g" }}</td><td class="text-end">{{ m.total_value|floatformat:"0g" }}</td>{% endif %}
+            <td>{{ m.note }}</td><td class="small text-muted">{{ m.recorded_by|default:"-" }}</td>
+          </tr>
+        {% empty %}<tr><td colspan="7" class="text-muted">No movements recorded yet.</td></tr>{% endfor %}
+        </tbody>
+      </table></div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card mb-3"><div class="card-body"><dl class="mb-0">
+      <dt>In stock</dt><dd class="fs-4">{{ on_hand }}</dd>
+      <dt>Department</dt><dd>{{ item.department }}</dd>
+      <dt>Storage location</dt><dd>{{ item.storage_location|default:"-" }}</dd>
+      <dt>Selling price</dt><dd>UGX {{ item.unit_price|floatformat:"0g" }}</dd>
+      <dt>Reorder level</dt><dd>{{ item.reorder_level }}</dd>
+      <dt>Description</dt><dd class="mb-0">{{ item.description|default:"-"|linebreaksbr }}</dd>
+    </dl></div></div>
+    {% if finance_ok %}
+    <div class="card border-warning"><div class="card-header">Finance (confidential)</div><div class="card-body"><dl class="mb-0">
+      <dt>Cost per unit</dt><dd>UGX {{ item.unit_cost|floatformat:"0g" }}</dd>
+      <dt>Units sold</dt><dd>{{ units_sold }}</dd>
+      <dt>Total revenue</dt><dd>UGX {{ revenue|floatformat:"0g" }}</dd>
+      <dt>Restock spending</dt><dd>UGX {{ restock_cost|floatformat:"0g" }}</dd>
+      <dt>Revenue minus restock spending</dt><dd class="mb-0">UGX {{ net|floatformat:"0g" }}</dd>
+    </dl></div></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

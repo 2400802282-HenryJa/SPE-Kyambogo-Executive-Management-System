@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
-from config.forms import style_form
+from config.forms import limit_department_choices, style_form
 
 from .models import FollowUp, Programme, ProgrammeSpeaker, ProgrammeVolunteer
 
@@ -24,9 +24,10 @@ class ProgrammeForm(forms.ModelForm):
             "end_date": forms.DateInput(attrs=DATE, format="%Y-%m-%d"),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["coordinator"].queryset = get_user_model().objects.filter(is_active=True)
+        limit_department_choices(self, user)
         style_form(self)
 
     def clean(self):
@@ -40,11 +41,20 @@ class ProgrammeForm(forms.ModelForm):
 class SpeakerForm(forms.ModelForm):
     class Meta:
         model = ProgrammeSpeaker
-        fields = ["contact", "topic", "confirmed"]
+        fields = ["contact", "name", "organisation", "topic", "confirmed"]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        # Only users allowed to see Contacts may pick from the contacts directory.
+        if user is None or not user.can_access_contacts:
+            del self.fields["contact"]
         style_form(self)
+
+    def clean(self):
+        cleaned = super().clean()
+        if not cleaned.get("contact") and not (cleaned.get("name") or "").strip():
+            raise forms.ValidationError("Enter the speaker's name (or pick a contact).")
+        return cleaned
 
 
 class VolunteerForm(forms.ModelForm):

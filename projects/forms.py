@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
+from config.forms import limit_department_choices
+
 from .models import Milestone, Project, Task
 
 
@@ -38,9 +40,10 @@ class ProjectForm(forms.ModelForm):
             "due_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["owner"].queryset = get_user_model().objects.filter(is_active=True)
+        limit_department_choices(self, user)
         style_form(self)
 
 

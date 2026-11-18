@@ -68,5 +68,14 @@
         {% empty %}<li class="list-group-item text-muted">No outstanding follow-ups.</li>{% endfor %}
       </ul></div>
   </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Low stock</div>
+      <ul class="list-group list-group-flush">
+        {% for i in low_stock %}
+          <li class="list-group-item d-flex justify-content-between"><a href="{{ i.get_absolute_url }}">{{ i.name }}</a>
+            <span class="badge text-bg-warning">{{ i.on_hand }} left</span></li>
+        {% empty %}<li class="list-group-item text-muted">No items below their reorder level.</li>{% endfor %}
+      </ul></div>
+  </div>
 </div>
 {% endblock %}

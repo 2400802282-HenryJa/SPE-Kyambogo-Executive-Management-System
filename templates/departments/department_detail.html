@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ department.name }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-1">{{ department.name }}</h1>
+<p class="text-muted">Head: {{ department.head|default:"not assigned" }}</p>
+<p>{{ department.description|linebreaksbr }}</p>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card mb-3"><div class="card-header">Members</div>
+      <ul class="list-group list-group-flush">
+        {% for m in members %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{{ m }} <span class="text-muted small">{{ m.get_position_display }}</span></span>
+            {% if can_manage %}
+            <form method="post" action="{% url 'department_remove_member' department.pk m.pk %}" class="m-0">{% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button></form>
+            {% endif %}
+          </li>
+        {% empty %}<li class="list-group-item text-muted">No members yet.</li>{% endfor %}
+      </ul>
+      {% if can_manage %}
+      <div class="card-body border-top">
+        <form method="post" action="{% url 'department_add_member' department.pk %}" class="row g-2">{% csrf_token %}
+          <div class="col-8">{{ add_form.person }}</div>
+          <div class="col-4"><button class="btn btn-primary w-100" type="submit">Add member</button></div>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-3"><div class="card-header">Projects</div>
+      <ul class="list-group list-group-flush">
+        {% for p in projects %}<li class="list-group-item"><a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+          <span class="badge text-bg-{{ p.status_badge }}">{{ p.get_status_display }}</span></li>
+        {% empty %}<li class="list-group-item text-muted">No projects.</li>{% endfor %}
+      </ul></div>
+    <div class="card"><div class="card-header">Programmes</div>
+      <ul class="list-group list-group-flush">
+        {% for p in programmes %}<li class="list-group-item"><a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+          <span class="text-muted small">{{ p.date }}</span></li>
+        {% empty %}<li class="list-group-item text-muted">No programmes.</li>{% endfor %}
+      </ul></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,7 +1,22 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
+
+
+class ProjectQuerySet(models.QuerySet):
+    def visible_to(self, user):
+        """Top executives see everything; others see their departments' projects."""
+        if user.is_superuser or user.is_top_executive:
+            return self.all()
+        mine = self.model.objects.filter(
+            Q(department__members=user)
+            | Q(department__head=user)
+            | Q(owner=user)
+            | Q(tasks__assignee=user)
+        ).values("pk")
+        return self.filter(pk__in=mine)
 
 
 class Project(models.Model):
@@ -45,6 +60,8 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    objects = ProjectQuerySet.as_manager()
+
     class Meta:
         ordering = ["due_date", "title"]
 
@@ -79,6 +96,7 @@ class Project(models.Model):
             return False
         return bool(
             user.is_superuser
+            or user.is_top_executive
             or self.owner_id == user.pk
             or (self.department_id and self.department.head_id == user.pk)
         )

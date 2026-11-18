@@ -50,6 +50,11 @@ class ProgrammeCreateView(LoginRequiredMixin, CreateView):
     form_class = ProgrammeForm
     template_name = "form_page.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx.update(heading="New programme", back_url="/programmes/")
@@ -60,6 +65,11 @@ class ProgrammeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Programme
     form_class = ProgrammeForm
     template_name = "form_page.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
     def test_func(self):
         return self.get_object().can_be_edited_by(self.request.user)
@@ -104,9 +114,15 @@ class SpeakerCreateView(ProgrammeChildCreateView):
     form_class = SpeakerForm
     heading = "Add invited speaker"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
-        if ProgrammeSpeaker.objects.filter(
-            programme=self.get_programme(), contact=form.cleaned_data["contact"]
+        contact = form.cleaned_data.get("contact")
+        if contact and ProgrammeSpeaker.objects.filter(
+            programme=self.get_programme(), contact=contact
         ).exists():
             form.add_error("contact", "This contact is already listed as a speaker.")
             return self.form_invalid(form)

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Departments{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Departments</h1>
+<div class="row g-3">
+  {% for d in departments %}
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h2 class="h5"><a href="{{ d.get_absolute_url }}">{{ d.name }}</a></h2>
+    <div class="text-muted small">Head: {{ d.head|default:"not assigned" }}</div>
+    <p class="mb-0 mt-2">{{ d.description|default:""|truncatewords:25 }}</p>
+  </div></div></div>
+  {% empty %}
+  <div class="col-12"><div class="alert alert-info">You have not been added to any department yet. Ask your department head or the CAO.</div></div>
+  {% endfor %}
+</div>
+{% endblock %}

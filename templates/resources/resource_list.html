@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Resources{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Resources and merchandise</h1>
+  <a class="btn btn-primary" href="{% url 'resource_create' %}">New item</a>
+</div>
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-5"><input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search name or storage location"></div>
+  <div class="col-md-4"><select name="category" class="form-select">
+    <option value="">All categories</option>
+    {% for value, label in categories %}<option value="{{ value }}" {% if value == selected_category %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select></div>
+  <div class="col-md-3"><button class="btn btn-outline-secondary" type="submit">Search</button></div>
+</form>
+<div class="table-responsive"><table class="table table-hover bg-white">
+  <thead><tr><th>Item</th><th>Category</th><th>Department</th><th class="text-end">In stock</th><th class="text-end">Price (UGX)</th></tr></thead>
+  <tbody>
+  {% for i in items %}
+    <tr>
+      <td><a href="{{ i.get_absolute_url }}">{{ i.name }}</a>{% if not i.is_active %} <span class="badge text-bg-secondary">Inactive</span>{% endif %}
+        <div class="small text-muted">{{ i.storage_location }}</div></td>
+      <td>{{ i.get_category_display }}</td>
+      <td>{{ i.department }}</td>
+      <td class="text-end">{{ i.on_hand }}{% if i.reorder_level and i.on_hand <= i.reorder_level %} <span class="badge text-bg-warning">Low</span>{% endif %}</td>
+      <td class="text-end">{% if i.category == 'merchandise' %}{{ i.unit_price|floatformat:"0g" }}{% else %}-{% endif %}</td>
+    </tr>
+  {% empty %}<tr><td colspan="5" class="text-muted">No items yet.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

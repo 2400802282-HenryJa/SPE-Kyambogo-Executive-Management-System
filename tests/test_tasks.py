@@ -30,7 +30,7 @@ class TaskMilestoneTests(TestCase):
     def test_other_user_cannot_add_task(self):
         self.client.login(username="other", password="pass12345")
         r = self.client.get(reverse("task_create", args=[self.project.pk]))
-        self.assertEqual(r.status_code, 403)
+        self.assertEqual(r.status_code, 404)  # project not visible to outsiders
 
     def test_assignee_can_update_own_task_status(self):
         self.client.login(username="assignee", password="pass12345")

@@ -1,14 +1,31 @@
 {% extends "base.html" %}
-{% block title %}Log in{% endblock %}
+{% block title %}Sign in{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-5">
-    <div class="card shadow-sm"><div class="card-body">
-      <h1 class="h4 mb-3">SPE Kyambogo Executive Login</h1>
+  <div class="col-md-5 col-lg-4">
+    <div class="card shadow-sm"><div class="card-body p-4">
+      <h1 class="h4 mb-1">SPE Kyambogo</h1>
+      <p class="text-muted">Executive Management Information System</p>
+
+      {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+          <strong>We couldn't sign you in.</strong><br>
+          The username or password is incorrect, or the account is inactive. Check both and try again, or ask the developer or CAO to reset your password.
+        </div>
+      {% endif %}
+
       <form method="post">
         {% csrf_token %}
-        {{ form.as_div }}
-        <button class="btn btn-primary mt-3" type="submit">Log in</button>
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+          {{ form.username }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+          {{ form.password }}
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button class="btn btn-primary w-100" type="submit">Sign in</button>
       </form>
     </div></div>
   </div>

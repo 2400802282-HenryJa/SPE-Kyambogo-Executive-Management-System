@@ -1,14 +1,15 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
+from accounts.mixins import ContactAccessMixin
+
 from .forms import ContactForm, InteractionForm, OrganisationForm
 from .models import Contact
 
 
-class ContactListView(LoginRequiredMixin, ListView):
+class ContactListView(ContactAccessMixin, ListView):
     model = Contact
     template_name = "contacts/contact_list.html"
     context_object_name = "contacts"
@@ -36,7 +37,7 @@ class ContactListView(LoginRequiredMixin, ListView):
         return ctx
 
 
-class ContactDetailView(LoginRequiredMixin, DetailView):
+class ContactDetailView(ContactAccessMixin, DetailView):
     model = Contact
     template_name = "contacts/contact_detail.html"
 
@@ -46,7 +47,7 @@ class ContactDetailView(LoginRequiredMixin, DetailView):
         return ctx
 
 
-class ContactCreateView(LoginRequiredMixin, CreateView):
+class ContactCreateView(ContactAccessMixin, CreateView):
     model = Contact
     form_class = ContactForm
     template_name = "form_page.html"
@@ -61,13 +62,10 @@ class ContactCreateView(LoginRequiredMixin, CreateView):
         return ctx
 
 
-class ContactUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ContactUpdateView(ContactAccessMixin, UpdateView):
     model = Contact
     form_class = ContactForm
     template_name = "form_page.html"
-
-    def test_func(self):
-        return self.get_object().can_be_edited_by(self.request.user)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -75,7 +73,7 @@ class ContactUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return ctx
 
 
-class OrganisationCreateView(LoginRequiredMixin, CreateView):
+class OrganisationCreateView(ContactAccessMixin, CreateView):
     form_class = OrganisationForm
     template_name = "form_page.html"
 
@@ -96,7 +94,7 @@ class OrganisationCreateView(LoginRequiredMixin, CreateView):
         return Organisation.objects.all()
 
 
-class InteractionCreateView(LoginRequiredMixin, CreateView):
+class InteractionCreateView(ContactAccessMixin, CreateView):
     form_class = InteractionForm
     template_name = "form_page.html"
 
